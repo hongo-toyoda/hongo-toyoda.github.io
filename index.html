@@ -1,0 +1,1347 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>学校の落とし物・探し物掲示板 ✨</title>
+  
+  <style>
+    :root {
+      --pop-yellow: #ffde59;
+      --pop-yellow-dark: #e5c433;
+      --pop-pink: #ff6699;
+      --pop-pink-light: #fff0f5;
+      --pop-green: #4eedc4;
+      --pop-green-light: #e8faf5;
+      --pop-cyan: #52c7ff;
+      --pop-cyan-light: #ebf8ff;
+      --pop-purple: #b19ffb;
+      --pop-purple-light: #f3f0ff;
+      --pop-orange: #ff9933;
+      --pop-dark: #2d3748;
+      --pop-bg: #fffdf0;
+      --pop-white: #ffffff;
+      --pop-gray-light: #f8fafc;
+      --border-dark: 3px solid #2d3748;
+      --shadow-pop: 4px 4px 0px #2d3748;
+      --shadow-pop-lg: 6px 6px 0px #2d3748;
+      --shadow-pop-sm: 2px 2px 0px #2d3748;
+      --radius-pop: 20px;
+    }
+
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: "M PLUS Rounded 1c", "Hiragino Maru Gothic ProN", "Yu Gothic Rounded", "Quicksand", sans-serif;
+      background-color: var(--pop-bg);
+      background-image: 
+        radial-gradient(var(--pop-yellow) 2px, transparent 2px), 
+        radial-gradient(var(--pop-pink) 2px, var(--pop-bg) 2px);
+      background-size: 32px 32px;
+      background-position: 0 0, 16px 16px;
+      color: var(--pop-dark);
+      line-height: 1.6;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      padding-bottom: 40px;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 0 16px;
+    }
+
+    header {
+      background-color: var(--pop-yellow);
+      border-bottom: var(--border-dark);
+      position: sticky;
+      top: 0;
+      z-index: 30;
+      padding: 12px 0;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+    }
+
+    .header-inner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .brand-icon {
+      width: 48px;
+      height: 48px;
+      background: var(--pop-pink);
+      border: var(--border-dark);
+      border-radius: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 26px;
+      box-shadow: var(--shadow-pop-sm);
+      transform: rotate(-4deg);
+      transition: transform 0.2s ease;
+    }
+
+    .brand-icon:hover {
+      transform: rotate(6deg) scale(1.05);
+    }
+
+    .brand-title {
+      font-size: 1.3rem;
+      font-weight: 900;
+      letter-spacing: 0.5px;
+    }
+
+    .brand-subtitle {
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: rgba(45, 55, 72, 0.8);
+      display: none;
+    }
+
+    @media (min-width: 640px) {
+      .brand-title { font-size: 1.6rem; }
+      .brand-subtitle { display: block; }
+    }
+
+    .pop-btn {
+      background: var(--pop-pink);
+      color: var(--pop-white);
+      border: var(--border-dark);
+      box-shadow: var(--shadow-pop-sm);
+      border-radius: 999px;
+      padding: 8px 18px;
+      font-size: 0.9rem;
+      font-weight: 800;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.15s cubic-bezier(0.34, 1.56, 0.64, 1);
+      user-select: none;
+      text-decoration: none;
+    }
+
+    .pop-btn:hover {
+      transform: translateY(-3px) scale(1.03);
+      box-shadow: var(--shadow-pop);
+    }
+
+    .pop-btn:active {
+      transform: translateY(2px) scale(0.98);
+      box-shadow: 1px 1px 0px #2d3748;
+    }
+
+    .pop-btn-yellow { background: var(--pop-yellow); color: var(--pop-dark); }
+    .pop-btn-green { background: var(--pop-green); color: var(--pop-dark); }
+    .pop-btn-purple { background: var(--pop-purple); color: var(--pop-white); }
+    .pop-btn-gray { background: #e2e8f0; color: var(--pop-dark); }
+    .pop-btn-white { background: var(--pop-white); color: var(--pop-dark); }
+
+    .pop-card {
+      background: var(--pop-white);
+      border: var(--border-dark);
+      border-radius: var(--radius-pop);
+      box-shadow: var(--shadow-pop);
+      transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+      overflow: hidden;
+    }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+      margin: 20px 0;
+    }
+
+    @media (min-width: 768px) {
+      .stats-grid { grid-template-columns: repeat(4, 1fr); }
+    }
+
+    .stat-card {
+      padding: 14px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .stat-icon {
+      width: 42px;
+      height: 42px;
+      border-radius: 14px;
+      border: var(--border-dark);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+      box-shadow: var(--shadow-pop-sm);
+      flex-shrink: 0;
+    }
+
+    .stat-label { font-size: 0.75rem; font-weight: 800; }
+    .stat-value { font-size: 1.25rem; font-weight: 900; }
+
+    .controls-card {
+      padding: 16px;
+      margin-bottom: 24px;
+    }
+
+    .search-box {
+      position: relative;
+      margin-bottom: 12px;
+    }
+
+    .search-icon {
+      position: absolute;
+      left: 14px;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 1.1rem;
+      pointer-events: none;
+    }
+
+    .search-input {
+      width: 100%;
+      padding: 10px 40px 10px 44px;
+      background: var(--pop-pink-light);
+      border: var(--border-dark);
+      border-radius: 16px;
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: var(--pop-dark);
+      outline: none;
+      transition: background 0.2s, box-shadow 0.2s;
+    }
+
+    .search-input:focus {
+      background: var(--pop-white);
+      box-shadow: 0 0 0 4px var(--pop-yellow);
+    }
+
+    .clear-search-btn {
+      position: absolute;
+      right: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      background: none;
+      border: none;
+      font-size: 1rem;
+      cursor: pointer;
+      display: none;
+      color: #a0aec0;
+    }
+
+    .filters-wrapper {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      padding-top: 12px;
+      border-top: 2px dashed #cbd5e1;
+    }
+
+    @media (min-width: 768px) {
+      .filters-wrapper {
+        flex-direction: row;
+        align-items: center;
+        justify-content: space-between;
+      }
+    }
+
+    .type-tabs {
+      display: flex;
+      gap: 6px;
+      overflow-x: auto;
+      padding-bottom: 4px;
+    }
+
+    .type-tab-btn {
+      font-size: 0.8rem;
+      padding: 6px 14px;
+      white-space: nowrap;
+    }
+
+    .category-select-wrapper {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .select-input {
+      padding: 6px 14px;
+      border: var(--border-dark);
+      border-radius: 14px;
+      font-size: 0.85rem;
+      font-weight: 800;
+      background: var(--pop-white);
+      color: var(--pop-dark);
+      outline: none;
+      cursor: pointer;
+    }
+
+    .items-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 20px;
+    }
+
+    @media (min-width: 640px) {
+      .items-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+
+    @media (min-width: 992px) {
+      .items-grid { grid-template-columns: repeat(3, 1fr); }
+    }
+
+    .item-card {
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      position: relative;
+    }
+
+    .item-card:hover {
+      transform: translateY(-5px) scale(1.02) rotate(-0.5deg);
+      box-shadow: var(--shadow-pop-lg);
+    }
+
+    .card-badge-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 4px 10px;
+      border-radius: 999px;
+      font-size: 0.75rem;
+      font-weight: 900;
+      border: 2px solid var(--pop-dark);
+      box-shadow: var(--shadow-pop-sm);
+    }
+
+    .badge-lost { background: var(--pop-pink); color: var(--pop-white); }
+    .badge-found { background: var(--pop-green); color: var(--pop-dark); }
+    .badge-resolved {
+      background: var(--pop-purple-light);
+      color: var(--pop-pink);
+      border: 2px dashed var(--pop-pink);
+      transform: rotate(-4deg);
+    }
+
+    .card-date {
+      font-size: 0.7rem;
+      font-weight: 800;
+      color: #64748b;
+      background: rgba(255,255,255,0.8);
+      padding: 2px 6px;
+      border-radius: 6px;
+      border: 1px solid #cbd5e1;
+    }
+
+    .card-thumb {
+      width: 100%;
+      height: 140px;
+      border-radius: 14px;
+      border: 2px solid var(--pop-dark);
+      object-fit: cover;
+      margin-bottom: 10px;
+      background: #f1f5f9;
+      box-shadow: var(--shadow-pop-sm);
+      cursor: pointer;
+    }
+
+    .card-title {
+      font-size: 1.05rem;
+      font-weight: 900;
+      color: var(--pop-dark);
+      margin-bottom: 8px;
+      line-height: 1.3;
+      cursor: pointer;
+    }
+
+    .card-title:hover {
+      color: var(--pop-pink);
+    }
+
+    .card-info-list {
+      background: rgba(255, 255, 255, 0.75);
+      border: 2px solid rgba(45, 55, 72, 0.15);
+      border-radius: 12px;
+      padding: 8px 10px;
+      font-size: 0.75rem;
+      font-weight: 700;
+      margin-bottom: 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .card-info-item {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .card-desc {
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: #475569;
+      background: var(--pop-white);
+      padding: 8px;
+      border-radius: 10px;
+      border: 2px dashed rgba(45, 55, 72, 0.2);
+      margin-bottom: 12px;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+
+    .card-footer {
+      padding-top: 10px;
+      border-top: 2px dashed rgba(45, 55, 72, 0.15);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 6px;
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 40px 20px;
+      background: var(--pop-white);
+      border: 3px dashed var(--pop-dark);
+      border-radius: var(--radius-pop);
+      margin-top: 20px;
+    }
+
+    .empty-icon { font-size: 3rem; margin-bottom: 8px; }
+    .empty-title { font-size: 1.1rem; font-weight: 900; }
+    .empty-text { font-size: 0.8rem; color: #64748b; font-weight: 700; margin-top: 4px; }
+
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(45, 55, 72, 0.6);
+      backdrop-filter: blur(4px);
+      z-index: 50;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.2s ease;
+    }
+
+    .modal-overlay.active {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .modal-container {
+      background: var(--pop-white);
+      border: 4px solid var(--pop-dark);
+      border-radius: 24px;
+      box-shadow: 8px 8px 0px #2d3748;
+      width: 100%;
+      max-width: 520px;
+      max-height: 90vh;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      transform: scale(0.92);
+      transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    .modal-overlay.active .modal-container {
+      transform: scale(1);
+    }
+
+    .modal-header {
+      background: var(--pop-yellow);
+      border-bottom: 4px solid var(--pop-dark);
+      padding: 14px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .modal-title {
+      font-size: 1.1rem;
+      font-weight: 900;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .modal-close-btn {
+      width: 32px;
+      height: 32px;
+      border-radius: 999px;
+      background: var(--pop-white);
+      border: 2px solid var(--pop-dark);
+      font-weight: 900;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: var(--shadow-pop-sm);
+      transition: transform 0.15s;
+    }
+
+    .modal-close-btn:hover {
+      background: var(--pop-pink);
+      color: var(--pop-white);
+      transform: scale(1.1);
+    }
+
+    .modal-body {
+      padding: 20px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      font-size: 0.85rem;
+      font-weight: 800;
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .form-label {
+      font-size: 0.8rem;
+      font-weight: 900;
+      color: var(--pop-dark);
+    }
+
+    .form-label .required {
+      color: var(--pop-pink);
+      margin-left: 2px;
+    }
+
+    .radio-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    .radio-card {
+      border: var(--border-dark);
+      border-radius: 14px;
+      padding: 10px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
+      background: var(--pop-white);
+      transition: background 0.2s;
+    }
+
+    .radio-card:has(input:checked) {
+      background: var(--pop-pink-light);
+      border-color: var(--pop-pink);
+    }
+
+    .radio-card-found:has(input:checked) {
+      background: var(--pop-green-light);
+      border-color: var(--pop-green);
+    }
+
+    .input-text, .textarea-text {
+      width: 100%;
+      padding: 10px 14px;
+      border: var(--border-dark);
+      border-radius: 14px;
+      font-size: 0.85rem;
+      font-weight: 800;
+      font-family: inherit;
+      outline: none;
+      background: var(--pop-white);
+    }
+
+    .input-text:focus, .textarea-text:focus {
+      box-shadow: 0 0 0 4px var(--pop-yellow);
+    }
+
+    .upload-zone {
+      border: 3px dashed var(--pop-dark);
+      border-radius: 16px;
+      padding: 16px;
+      text-align: center;
+      background: #f8fafc;
+      position: relative;
+      cursor: pointer;
+    }
+
+    .upload-zone:hover {
+      background: var(--pop-yellow-light, #fffbeb);
+    }
+
+    .file-input {
+      position: absolute;
+      inset: 0;
+      opacity: 0;
+      cursor: pointer;
+      width: 100%;
+      height: 100%;
+    }
+
+    .preview-box {
+      position: relative;
+      display: inline-block;
+      max-height: 140px;
+    }
+
+    .preview-img {
+      max-height: 140px;
+      border-radius: 12px;
+      border: 2px solid var(--pop-dark);
+      box-shadow: var(--shadow-pop-sm);
+    }
+
+    .remove-img-btn {
+      position: absolute;
+      top: -8px;
+      right: -8px;
+      background: var(--pop-pink);
+      color: white;
+      width: 26px;
+      height: 26px;
+      border-radius: 999px;
+      border: 2px solid var(--pop-dark);
+      font-weight: 900;
+      cursor: pointer;
+      box-shadow: 1px 1px 0px #2d3748;
+    }
+
+    .modal-footer {
+      padding: 14px 20px;
+      background: var(--pop-gray-light);
+      border-top: 3px dashed #cbd5e1;
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
+    }
+
+    .toast {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      z-index: 60;
+      background: var(--pop-yellow);
+      border: var(--border-dark);
+      border-radius: 16px;
+      padding: 12px 20px;
+      box-shadow: var(--shadow-pop);
+      font-size: 0.9rem;
+      font-weight: 900;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      transform: translateY(100px);
+      opacity: 0;
+      pointer-events: none;
+      transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    .toast.active {
+      transform: translateY(0);
+      opacity: 1;
+    }
+
+    .hidden { display: none !important; }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="container">
+      <div class="header-inner">
+        <div class="brand">
+          <div class="brand-icon">🎒</div>
+          <div>
+            <h1 class="brand-title">学校の落とし物掲示板 <span style="color: var(--pop-pink);">✨</span></h1>
+            <p class="brand-subtitle">みつけてハッピー！みんなの探しもの広場 🏫</p>
+          </div>
+        </div>
+
+        <button id="openPostModalBtn" class="pop-btn">
+          <span style="font-size: 1.1rem;">➕</span>
+          <span>投稿する！</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main class="container" style="flex: 1; margin-top: 10px;">
+
+    <section class="stats-grid">
+      <div class="pop-card stat-card" style="background: var(--pop-pink-light);">
+        <div class="stat-icon" style="background: var(--pop-pink); color: white;">🔍</div>
+        <div>
+          <div class="stat-label" style="color: var(--pop-pink);">探しもの</div>
+          <div id="statLostCount" class="stat-value">0件</div>
+        </div>
+      </div>
+
+      <div class="pop-card stat-card" style="background: var(--pop-green-light);">
+        <div class="stat-icon" style="background: var(--pop-green); color: var(--pop-dark);">🎁</div>
+        <div>
+          <div class="stat-label" style="color: #059669;">はっけん！</div>
+          <div id="statFoundCount" class="stat-value">0件</div>
+        </div>
+      </div>
+
+      <div class="pop-card stat-card" style="background: var(--pop-purple-light);">
+        <div class="stat-icon" style="background: var(--pop-purple); color: white;">🎉</div>
+        <div>
+          <div class="stat-label" style="color: #7c3aed;">かいけつ！</div>
+          <div id="statResolvedCount" class="stat-value">0件</div>
+        </div>
+      </div>
+
+      <div class="pop-card stat-card" style="background: var(--pop-cyan-light);">
+        <div class="stat-icon" style="background: var(--pop-cyan); color: var(--pop-dark);">🤝</div>
+        <div>
+          <div class="stat-label" style="color: #0284c7;">心当たりがある時は</div>
+          <div style="font-size: 0.75rem; font-weight: 900;">先生か投稿者へご報告！</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="pop-card controls-card">
+      <div class="search-box">
+        <span class="search-icon">🔍</span>
+        <input type="text" id="searchInput" placeholder="なまえ、ばしょ、落とし物の名前でさがす..." class="search-input">
+        <button id="clearSearchBtn" class="clear-search-btn">✖</button>
+      </div>
+
+      <div class="filters-wrapper">
+        <div class="type-tabs" id="typeTabs">
+          <button data-type="all" class="type-tab-btn pop-btn pop-btn-yellow">🌈 すべて</button>
+          <button data-type="lost" class="type-tab-btn pop-btn pop-btn-white">🔍 探しもの</button>
+          <button data-type="found" class="type-tab-btn pop-btn pop-btn-white">📦 発見物</button>
+          <button data-type="resolved" class="type-tab-btn pop-btn pop-btn-white">🎉 解決済み</button>
+        </div>
+
+        <div class="category-select-wrapper">
+          <label for="categoryFilter" style="font-size: 0.8rem; font-weight: 900;">カテゴリ:</label>
+          <select id="categoryFilter" class="select-input">
+            <option value="all">⭐ すべて</option>
+            <option value="文房具">✏️ 文房具・ノート</option>
+            <option value="衣類・靴">👕 衣類・靴・帽子</option>
+            <option value="貴重品・鍵">🔑 貴重品・鍵・財布</option>
+            <option value="電子機器">📱 電子機器・端末</option>
+            <option value="その他">📦 その他</option>
+          </select>
+        </div>
+      </div>
+    </section>
+
+    <section id="itemsGrid" class="items-grid">
+      <!-- Items dynamically populated via JavaScript -->
+    </section>
+
+    <div id="emptyState" class="empty-state hidden">
+      <div class="empty-icon">🛸</div>
+      <div class="empty-title">該当する投稿がみつからないよ！</div>
+      <div class="empty-text">検索することばを変えるか、新しく投稿してみてね✨</div>
+    </div>
+  </main>
+
+  <div id="postModal" class="modal-overlay">
+    <div class="modal-container">
+      <div class="modal-header">
+        <div class="modal-title">
+          <span>✨</span>
+          <span>新しい情報を投稿する</span>
+        </div>
+        <button id="closePostModalBtn" class="modal-close-btn">✖</button>
+      </div>
+
+      <form id="postForm" class="modal-body">
+        <div class="form-group">
+          <label class="form-label">投稿区分 <span class="required">*</span></label>
+          <div class="radio-grid">
+            <label class="radio-card">
+              <input type="radio" name="type" value="lost" checked>
+              <div>
+                <div style="font-weight: 900;">🔍 探しもの</div>
+                <div style="font-size: 0.65rem; color: #64748b;">落としちゃった</div>
+              </div>
+            </label>
+            <label class="radio-card radio-card-found">
+              <input type="radio" name="type" value="found">
+              <div>
+                <div style="font-weight: 900;">📦 発見物</div>
+                <div style="font-size: 0.65rem; color: #64748b;">拾ってあげた</div>
+              </div>
+            </label>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="postAuthor" class="form-label">投稿者のお名前（年・組・氏名） <span class="required">*</span></label>
+          <input type="text" id="postAuthor" class="input-text" placeholder="例: 2年B組 たなか りく" required>
+        </div>
+
+        <div class="form-group">
+          <label for="postTitle" class="form-label">品名（落とした / 拾ったもの） <span class="required">*</span></label>
+          <input type="text" id="postTitle" class="input-text" placeholder="例: 青色のPUMAペンケース" required>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+          <div class="form-group">
+            <label for="postCategory" class="form-label">カテゴリ <span class="required">*</span></label>
+            <select id="postCategory" class="select-input" style="width: 100%; padding: 10px;" required>
+              <option value="">えらんでね</option>
+              <option value="文房具">✏️ 文房具・ノート</option>
+              <option value="衣類・靴">👕 衣類・靴・帽子</option>
+              <option value="貴重品・鍵">🔑 貴重品・鍵・財布</option>
+              <option value="電子機器">📱 電子機器・端末</option>
+              <option value="その他">📦 その他</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="postLocation" class="form-label">場所 <span class="required">*</span></label>
+            <input type="text" id="postLocation" class="input-text" placeholder="例: 体育館の前" required>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="postDescription" class="form-label">詳細・特徴・あずかり場所</label>
+          <textarea id="postDescription" class="textarea-text" rows="3" placeholder="例: 赤いキーホルダーが付いています。現在職員室で保管中です。"></textarea>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">写真を添える（任意）</label>
+          <div class="upload-zone" id="uploadZone">
+            <input type="file" id="postImageInput" accept="image/*" class="file-input">
+            <div id="uploadPlaceholder">
+              <div style="font-size: 1.8rem;">📸</div>
+              <div style="font-size: 0.75rem; font-weight: 900;">タップして写真を選択</div>
+            </div>
+            <div id="previewContainer" class="preview-box hidden">
+              <img id="imagePreview" src="" class="preview-img" alt="Preview">
+              <button type="button" id="removeImgBtn" class="remove-img-btn">✖</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="modal-footer" style="padding: 0; background: none; border: none; margin-top: 10px;">
+          <button type="button" id="cancelPostBtn" class="pop-btn pop-btn-gray">キャンセル</button>
+          <button type="submit" class="pop-btn pop-btn-green">投稿する！</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div id="detailModal" class="modal-overlay">
+    <div class="modal-container">
+      <div id="detailContent">
+        <!-- Dynamically injected detail view -->
+      </div>
+    </div>
+  </div>
+
+  <div id="confirmModal" class="modal-overlay">
+    <div class="modal-container" style="max-width: 360px; text-align: center;">
+      <div class="modal-body" style="align-items: center; padding: 24px;">
+        <div style="font-size: 3rem;">🗑️</div>
+        <div style="font-size: 1.1rem; font-weight: 900;">投稿を削除しますか？</div>
+        <div style="font-size: 0.75rem; color: #64748b; font-weight: 700;">無事に手元に戻ったり解決した場合に削除してくださいね！</div>
+      </div>
+      <div class="modal-footer" style="justify-content: center; gap: 12px;">
+        <button id="cancelConfirmBtn" class="pop-btn pop-btn-gray" style="flex: 1;">やめる</button>
+        <button id="okConfirmBtn" class="pop-btn" style="flex: 1;">削除する</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="toast" class="toast">
+    <span id="toastIcon">✨</span>
+    <span id="toastMsg">メッセージ</span>
+  </div>
+
+  <script>
+    const STORAGE_KEY = 'school_lost_found_pop_standalone_v1';
+
+    let state = {
+      items: [],
+      filterType: 'all',
+      category: 'all',
+      searchQuery: '',
+      currentBase64Image: '',
+      pendingDeleteId: null
+    };
+
+    const initialSamples = [
+      {
+        id: '101',
+        type: 'lost',
+        author: '2年B組 たなか りく',
+        title: 'ドラゴン柄の青い筆箱 ✏️',
+        category: '文房具',
+        location: '図工室または3階廊下',
+        description: '青色の布製で金のドラゴンが書いてあります。中にシャーペンと赤ペンが入っています！',
+        image: '',
+        date: '2026/10/06 14:20',
+        status: 'active'
+      },
+      {
+        id: '102',
+        type: 'found',
+        author: '5年1組 すずき はなこ',
+        title: 'いちご柄のキーホルダー付き鍵 🔑',
+        category: '貴重品・鍵',
+        location: '昇降口の下駄箱のちかく',
+        description: '小さないちごのチャームが付いています。職員室の落とし物箱でお預かりしています！',
+        image: '',
+        date: '2026/10/07 08:50',
+        status: 'active'
+      },
+      {
+        id: '103',
+        type: 'lost',
+        author: '3年A組 やまだ けんた',
+        title: '赤色の折りたたみ傘 ☂️',
+        category: '衣類・靴',
+        location: '体育館の玄関付近',
+        description: '持ち手部分に黄色い目印のテープが巻いてあります。',
+        image: '',
+        date: '2026/10/05 16:15',
+        status: 'active'
+      },
+      {
+        id: '104',
+        type: 'found',
+        author: '体育のさとう先生 ⚽',
+        title: '黄色のサッカーボール ⚽',
+        category: 'その他',
+        location: '校庭のグラウンド端',
+        description: '薄く「4組」と書いてあります。体育倉庫の前においてあります。',
+        image: '',
+        date: '2026/10/07 10:30',
+        status: 'active'
+      }
+    ];
+
+    const itemsGrid = document.getElementById('itemsGrid');
+    const emptyState = document.getElementById('emptyState');
+    const searchInput = document.getElementById('searchInput');
+    const clearSearchBtn = document.getElementById('clearSearchBtn');
+    const categoryFilter = document.getElementById('categoryFilter');
+    const typeTabs = document.getElementById('typeTabs');
+
+    const statLostCount = document.getElementById('statLostCount');
+    const statFoundCount = document.getElementById('statFoundCount');
+    const statResolvedCount = document.getElementById('statResolvedCount');
+
+    const postModal = document.getElementById('postModal');
+    const openPostModalBtn = document.getElementById('openPostModalBtn');
+    const closePostModalBtn = document.getElementById('closePostModalBtn');
+    const cancelPostBtn = document.getElementById('cancelPostBtn');
+    const postForm = document.getElementById('postForm');
+
+    const postImageInput = document.getElementById('postImageInput');
+    const uploadPlaceholder = document.getElementById('uploadPlaceholder');
+    const previewContainer = document.getElementById('previewContainer');
+    const imagePreview = document.getElementById('imagePreview');
+    const removeImgBtn = document.getElementById('removeImgBtn');
+
+    const detailModal = document.getElementById('detailModal');
+    const detailContent = document.getElementById('detailContent');
+    const confirmModal = document.getElementById('confirmModal');
+
+    function showToast(msg, icon = '✨') {
+      const toast = document.getElementById('toast');
+      document.getElementById('toastMsg').textContent = msg;
+      document.getElementById('toastIcon').textContent = icon;
+      toast.classList.add('active');
+      setTimeout(() => toast.classList.remove('active'), 2800);
+    }
+
+    function escapeHtml(str) {
+      if (!str) return '';
+      return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+    }
+
+    function loadData() {
+      try {
+        const stored = localStorage.getItem(STORAGE_KEY);
+        if (stored) {
+          state.items = JSON.parse(stored);
+        } else {
+          state.items = initialSamples;
+          saveData();
+        }
+      } catch (e) {
+        state.items = initialSamples;
+      }
+    }
+
+    function saveData() {
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(state.items));
+      } catch (e) {
+        showToast('保存可能容量を越えてしまいました', '⚠️');
+      }
+    }
+
+    postImageInput.addEventListener('change', (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+
+      if (!file.type.startsWith('image/')) {
+        showToast('画像ファイルを選んでください', '⚠️');
+        return;
+      }
+
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        const img = new Image();
+        img.onload = () => {
+          const canvas = document.createElement('canvas');
+          const maxDim = 400;
+          let width = img.width;
+          let height = img.height;
+
+          if (width > height) {
+            if (width > maxDim) {
+              height = Math.round((height * maxDim) / width);
+              width = maxDim;
+            }
+          } else {
+            if (height > maxDim) {
+              width = Math.round((width * maxDim) / height);
+              height = maxDim;
+            }
+          }
+
+          canvas.width = width;
+          canvas.height = height;
+          const ctx = canvas.getContext('2d');
+          ctx.drawImage(img, 0, 0, width, height);
+
+          state.currentBase64Image = canvas.toDataURL('image/jpeg', 0.7);
+          imagePreview.src = state.currentBase64Image;
+          uploadPlaceholder.classList.add('hidden');
+          previewContainer.classList.remove('hidden');
+        };
+        img.src = event.target.result;
+      };
+      reader.readAsDataURL(file);
+    });
+
+    removeImgBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      resetImageInput();
+    });
+
+    function resetImageInput() {
+      postImageInput.value = '';
+      state.currentBase64Image = '';
+      imagePreview.src = '';
+      uploadPlaceholder.classList.remove('hidden');
+      previewContainer.classList.add('hidden');
+    }
+
+    function render() {
+      // Statistics
+      const lostCount = state.items.filter(i => i.type === 'lost' && i.status !== 'resolved').length;
+      const foundCount = state.items.filter(i => i.type === 'found' && i.status !== 'resolved').length;
+      const resolvedCount = state.items.filter(i => i.status === 'resolved').length;
+
+      statLostCount.textContent = `${lostCount}件`;
+      statFoundCount.textContent = `${foundCount}件`;
+      statResolvedCount.textContent = `${resolvedCount}件`;
+
+      // Filter logic
+      const filtered = state.items.filter(item => {
+        if (state.filterType === 'lost' && (item.type !== 'lost' || item.status === 'resolved')) return false;
+        if (state.filterType === 'found' && (item.type !== 'found' || item.status === 'resolved')) return false;
+        if (state.filterType === 'resolved' && item.status !== 'resolved') return false;
+
+        if (state.category !== 'all' && item.category !== state.category) return false;
+
+        if (state.searchQuery) {
+          const q = state.searchQuery.toLowerCase();
+          const matchTitle = item.title.toLowerCase().includes(q);
+          const matchAuthor = item.author.toLowerCase().includes(q);
+          const matchLoc = item.location.toLowerCase().includes(q);
+          const matchDesc = item.description ? item.description.toLowerCase().includes(q) : false;
+          if (!matchTitle && !matchAuthor && !matchLoc && !matchDesc) return false;
+        }
+
+        return true;
+      });
+
+      itemsGrid.innerHTML = '';
+
+      if (filtered.length === 0) {
+        emptyState.classList.remove('hidden');
+      } else {
+        emptyState.classList.add('hidden');
+
+        filtered.forEach(item => {
+          const isResolved = item.status === 'resolved';
+          const isLost = item.type === 'lost';
+
+          const card = document.createElement('div');
+          const bgBg = isResolved ? 'background: var(--pop-purple-light);' : (isLost ? 'background: var(--pop-pink-light);' : 'background: var(--pop-green-light);');
+
+          card.className = 'pop-card item-card';
+          card.style.cssText = bgBg;
+
+          let badgeHTML = isResolved ? 
+            `<span class="badge badge-resolved">🎉 かいけつ！</span>` : 
+            (isLost ? `<span class="badge badge-lost">🔍 探しもの</span>` : `<span class="badge badge-found">📦 発見物</span>`);
+
+          card.innerHTML = `
+            <div>
+              <div class="card-badge-row">
+                ${badgeHTML}
+                <span class="card-date">⏰ ${escapeHtml(item.date)}</span>
+              </div>
+
+              ${item.image ? `<img src="${item.image}" class="card-thumb" onclick="openDetailModal('${item.id}')" alt="thumb">` : ''}
+
+              <h3 class="card-title" onclick="openDetailModal('${item.id}')">${escapeHtml(item.title)}</h3>
+
+              <div class="card-info-list">
+                <div class="card-info-item"><span>👤</span> <span>${escapeHtml(item.author)}</span></div>
+                <div class="card-info-item"><span>📍</span> <span>${escapeHtml(item.location)}</span></div>
+                <div class="card-info-item"><span>🏷️</span> <span style="background: var(--pop-yellow); padding: 1px 6px; border-radius: 4px;">${escapeHtml(item.category)}</span></div>
+              </div>
+
+              ${item.description ? `<p class="card-desc">${escapeHtml(item.description)}</p>` : ''}
+            </div>
+
+            <div class="card-footer">
+              <button onclick="openDetailModal('${item.id}')" class="pop-btn pop-btn-white" style="font-size: 0.75rem; padding: 4px 10px;">
+                詳細 ➔
+              </button>
+
+              <div style="display: flex; gap: 4px;">
+                ${!isResolved ? `
+                  <button onclick="markAsResolved('${item.id}')" class="pop-btn pop-btn-purple" style="font-size: 0.75rem; padding: 4px 10px;">
+                    🎉 解決済みにする
+                  </button>
+                ` : ''}
+                <button onclick="promptDelete('${item.id}')" class="pop-btn pop-btn-white" style="padding: 4px 8px; font-size: 0.75rem;" title="削除">
+                  🗑️
+                </button>
+              </div>
+            </div>
+          `;
+
+          itemsGrid.appendChild(card);
+        });
+      }
+    }
+
+    searchInput.addEventListener('input', (e) => {
+      state.searchQuery = e.target.value.trim();
+      clearSearchBtn.style.display = state.searchQuery ? 'block' : 'none';
+      render();
+    });
+
+    clearSearchBtn.addEventListener('click', () => {
+      searchInput.value = '';
+      state.searchQuery = '';
+      clearSearchBtn.style.display = 'none';
+      render();
+    });
+
+    categoryFilter.addEventListener('change', (e) => {
+      state.category = e.target.value;
+      render();
+    });
+
+    typeTabs.querySelectorAll('.type-tab-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        state.filterType = btn.getAttribute('data-type');
+        typeTabs.querySelectorAll('.type-tab-btn').forEach(b => {
+          b.className = 'type-tab-btn pop-btn pop-btn-white';
+        });
+        btn.className = 'type-tab-btn pop-btn pop-btn-yellow';
+        render();
+      });
+    });
+
+    function openModal(modal) {
+      modal.classList.add('active');
+    }
+
+    function closeModal(modal) {
+      modal.classList.remove('active');
+    }
+
+    openPostModalBtn.addEventListener('click', () => openModal(postModal));
+    closePostModalBtn.addEventListener('click', () => closeModal(postModal));
+    cancelPostBtn.addEventListener('click', () => closeModal(postModal));
+
+    postForm.addEventListener('submit', (e) => {
+      e.preventDefault();
+
+      const type = document.querySelector('input[name="type"]:checked').value;
+      const author = document.getElementById('postAuthor').value.trim();
+      const title = document.getElementById('postTitle').value.trim();
+      const category = document.getElementById('postCategory').value;
+      const location = document.getElementById('postLocation').value.trim();
+      const description = document.getElementById('postDescription').value.trim();
+
+      const now = new Date();
+      const dateStr = `${now.getFullYear()}/${String(now.getMonth() + 1).padStart(2, '0')}/${String(now.getDate()).padStart(2, '0')} ${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+
+      const newItem = {
+        id: String(Date.now()),
+        type,
+        author,
+        title,
+        category,
+        location,
+        description,
+        image: state.currentBase64Image,
+        date: dateStr,
+        status: 'active'
+      };
+
+      state.items.unshift(newItem);
+      saveData();
+      render();
+
+      postForm.reset();
+      resetImageInput();
+      closeModal(postModal);
+
+      showToast('投稿を登録しました！✨', '🎈');
+    });
+
+    window.openDetailModal = function(id) {
+      const item = state.items.find(i => i.id === id);
+      if (!item) return;
+
+      const isLost = item.type === 'lost';
+      const isResolved = item.status === 'resolved';
+
+      let badgeHTML = isResolved ? 
+        `<span class="badge badge-resolved">🎉 かいけつ！</span>` : 
+        (isLost ? `<span class="badge badge-lost">🔍 探しもの</span>` : `<span class="badge badge-found">📦 発見物</span>`);
+
+      detailContent.innerHTML = `
+        <div class="modal-header">
+          <div class="modal-title">
+            ${badgeHTML}
+          </div>
+          <button onclick="closeModal(detailModal)" class="modal-close-btn">✖</button>
+        </div>
+
+        <div class="modal-body">
+          ${item.image ? `<img src="${item.image}" style="width:100%; max-height: 220px; object-fit: contain; border-radius: 14px; border: 2px solid var(--pop-dark);" alt="detail">` : ''}
+
+          <h2 style="font-size: 1.2rem; font-weight: 900; color: var(--pop-dark);">${escapeHtml(item.title)}</h2>
+
+          <div style="background: var(--pop-yellow-light, #fffde7); border: 2px solid var(--pop-dark); border-radius: 14px; padding: 12px; font-size: 0.8rem; display: flex; flex-direction: column; gap: 6px;">
+            <div><strong>👤 投稿者:</strong> ${escapeHtml(item.author)}</div>
+            <div><strong>📍 場所:</strong> ${escapeHtml(item.location)}</div>
+            <div><strong>🏷️ カテゴリ:</strong> ${escapeHtml(item.category)}</div>
+            <div><strong>⏰ 日時:</strong> ${escapeHtml(item.date)}</div>
+          </div>
+
+          ${item.description ? `
+            <div>
+              <div style="font-size: 0.8rem; font-weight: 900; margin-bottom: 4px;">📝 詳細・特徴・メッセージ</div>
+              <div style="background: white; border: 2px dashed var(--pop-dark); border-radius: 12px; padding: 10px; font-size: 0.8rem; white-space: pre-wrap;">${escapeHtml(item.description)}</div>
+            </div>
+          ` : ''}
+        </div>
+
+        <div class="modal-footer" style="justify-content: space-between; align-items: center;">
+          <button onclick="promptDelete('${item.id}'); closeModal(detailModal);" class="pop-btn pop-btn-gray" style="font-size: 0.75rem;">🗑️ 削除</button>
+          ${!isResolved ? `
+            <button onclick="markAsResolved('${item.id}'); closeModal(detailModal);" class="pop-btn pop-btn-purple" style="font-size: 0.8rem;">
+              🎉 解決済みにする！
+            </button>
+          ` : '<span style="font-size: 0.8rem; font-weight: 900; color: #7c3aed;">解決済みです✨</span>'}
+        </div>
+      `;
+
+      openModal(detailModal);
+    };
+
+    window.markAsResolved = function(id) {
+      const item = state.items.find(i => i.id === id);
+      if (item) {
+        item.status = 'resolved';
+        saveData();
+        render();
+        showToast('解決済みに変更しました！🎉', '🎊');
+      }
+    };
+
+    window.promptDelete = function(id) {
+      state.pendingDeleteId = id;
+      openModal(confirmModal);
+    };
+
+    document.getElementById('cancelConfirmBtn').addEventListener('click', () => {
+      closeModal(confirmModal);
+      state.pendingDeleteId = null;
+    });
+
+    document.getElementById('okConfirmBtn').addEventListener('click', () => {
+      if (state.pendingDeleteId) {
+        state.items = state.items.filter(i => i.id !== state.pendingDeleteId);
+        saveData();
+        render();
+        showToast('投稿を削除しました', '🧹');
+      }
+      closeModal(confirmModal);
+      state.pendingDeleteId = null;
+    });
+
+    [postModal, detailModal, confirmModal].forEach(m => {
+      m.addEventListener('click', (e) => {
+        if (e.target === m) closeModal(m);
+      });
+    });
+
+    window.addEventListener('DOMContentLoaded', () => {
+      loadData();
+      render();
+    });
+  </script>
+</body>
+</html>
